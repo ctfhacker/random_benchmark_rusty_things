@@ -51,6 +51,8 @@ fn create_free_blocks() -> (Vec<Location>, u64) {
 }
 
 fn first_solution(free_blocks: &mut Vec<Location>, alloc: u64) -> Location {
+    timeloop::scoped_timer!(ProfileBlock::First);
+
     let next_block = free_blocks
         .iter()
         .filter(|b| b.length >= alloc)
@@ -66,6 +68,8 @@ fn first_solution(free_blocks: &mut Vec<Location>, alloc: u64) -> Location {
 }
 
 fn second_solution(free_blocks: &mut Vec<Location>, alloc: u64) -> Location {
+    timeloop::scoped_timer!(ProfileBlock::FilterSwapRemove);
+
     let next_block_idx = free_blocks
         .iter()
         .enumerate()
@@ -77,6 +81,8 @@ fn second_solution(free_blocks: &mut Vec<Location>, alloc: u64) -> Location {
 }
 
 fn third_solution(free_blocks: &mut Vec<Location>, alloc: u64) -> Location {
+    timeloop::scoped_timer!(ProfileBlock::Fold);
+
     let next_block_idx = free_blocks
         .iter()
         .enumerate()
@@ -103,6 +109,8 @@ fn third_solution(free_blocks: &mut Vec<Location>, alloc: u64) -> Location {
 }
 
 fn fourth_solution(free_blocks: &mut Vec<Location>, alloc: u64) -> Location {
+    timeloop::scoped_timer!(ProfileBlock::ForLoop);
+
     let mut smallest_length = u64::MAX;
     let mut best_index = None;
     for (i, Location { length, .. }) in free_blocks.iter().enumerate() {
@@ -167,26 +175,10 @@ fn main() {
             let mut curr_work: Vec<Location> = work.pop().unwrap();
 
             let answer = match curr_test {
-                0 => {
-                    timeloop::time_work!(ProfileBlock::First, {
-                        first_solution(&mut curr_work, alloc)
-                    })
-                }
-                1 => {
-                    timeloop::time_work!(ProfileBlock::FilterSwapRemove, {
-                        second_solution(&mut curr_work, alloc)
-                    })
-                }
-                2 => {
-                    timeloop::time_work!(ProfileBlock::Fold, {
-                        third_solution(&mut curr_work, alloc)
-                    })
-                }
-                3 => {
-                    timeloop::time_work!(ProfileBlock::ForLoop, {
-                        fourth_solution(&mut curr_work, alloc)
-                    })
-                }
+                0 => first_solution(&mut curr_work, alloc),
+                1 => second_solution(&mut curr_work, alloc),
+                2 => third_solution(&mut curr_work, alloc),
+                3 => fourth_solution(&mut curr_work, alloc),
                 _ => Location::default(),
             };
 
